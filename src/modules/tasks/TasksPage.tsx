@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { Plus, Check } from 'lucide-react'
+import { logActivity } from '@/hooks/useLogActivity'
 import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
@@ -52,12 +53,18 @@ export default function TasksPage() {
 
   const toggleDone = useMutation({
     mutationFn: async (task: Task) => { await supabase.from('tasks').update({ done: !task.done }).eq('id', task.id) },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['tasks'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }); qc.invalidateQueries({ queryKey: ['overdue-tasks'] }) },
+    onSuccess: (_, task) => {
+      qc.invalidateQueries({ queryKey: ['tasks'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }); qc.invalidateQueries({ queryKey: ['overdue-tasks'] })
+      logActivity(task.done ? 'wieder geöffnet' : 'erledigt', 'task', task.title)
+    },
   })
 
   const deleteTask = useMutation({
-    mutationFn: async (id: string) => { await supabase.from('tasks').delete().eq('id', id) },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['tasks'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }) },
+    mutationFn: async ({ id }: { id: string; title: string }) => { await supabase.from('tasks').delete().eq('id', id) },
+    onSuccess: (_, { title }) => {
+      qc.invalidateQueries({ queryKey: ['tasks'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      logActivity('gelöscht', 'task', title)
+    },
   })
 
   const filtered = tasks.filter(t => {
@@ -158,7 +165,7 @@ export default function TasksPage() {
                   {task.due_date && <span className={`text-xs ${isOverdue(task) ? 'text-red-400' : 'text-gray-500'}`}>{formatDate(task.due_date)}</span>}
                   <RowActions actions={[
                     { label: 'Bearbeiten', onClick: () => { setEditing(task); setShowForm(true) } },
-                    { label: 'Löschen', onClick: () => deleteTask.mutate(task.id), danger: true },
+                    { label: 'Löschen', onClick: () => deleteTask.mutate({ id: task.id, title: task.title }), danger: true },
                   ]} />
                 </div>
               </div>
@@ -190,7 +197,7 @@ function TaskForm({ initial, profiles, onClose, onSaved }: { initial: Task | nul
     e.preventDefault()
     const payload = { title, description: description || null, due_date: dueDate || null, priority, assigned_to: assignedTo || null }
     if (initial) { await supabase.from('tasks').update(payload).eq('id', initial.id) }
-    else { await supabase.from('tasks').insert(payload) }
+    else { await supabase.from('tasks').insert(payload); logActivity('erstellt', 'task', title) }
     onSaved()
   }
 

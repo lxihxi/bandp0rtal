@@ -167,3 +167,51 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure handle_new_user();
+
+-- Transactions (Finanzen)
+create table transactions (
+  id uuid primary key default gen_random_uuid(),
+  type text not null check (type in ('einnahme','ausgabe')),
+  category text not null,
+  amount numeric not null,
+  date date not null default current_date,
+  description text,
+  event_id uuid references events(id) on delete set null,
+  created_at timestamptz default now()
+);
+
+alter table transactions enable row level security;
+create policy "auth users full access" on transactions for all using (auth.role() = 'authenticated');
+
+-- Setlists (Vorlagen)
+create table setlists (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  created_at timestamptz default now()
+);
+
+create table setlist_songs (
+  id uuid primary key default gen_random_uuid(),
+  setlist_id uuid not null references setlists(id) on delete cascade,
+  song_id uuid not null references songs(id) on delete cascade,
+  position int not null default 1,
+  created_at timestamptz default now()
+);
+
+alter table setlists enable row level security;
+alter table setlist_songs enable row level security;
+create policy "auth users full access" on setlists for all using (auth.role() = 'authenticated');
+create policy "auth users full access" on setlist_songs for all using (auth.role() = 'authenticated');
+
+-- Activity Log
+create table activity_log (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  action text not null,
+  entity_type text not null,
+  entity_name text not null,
+  created_at timestamptz default now()
+);
+
+alter table activity_log enable row level security;
+create policy "auth users full access" on activity_log for all using (auth.role() = 'authenticated');

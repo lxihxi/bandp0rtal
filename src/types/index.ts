@@ -100,3 +100,37 @@ export interface WikiPage {
   updated_at: string
   created_at: string
 }
+
+export interface Transaction {
+  id: string
+  date: string
+  type: 'einnahme' | 'ausgabe'
+  category: string
+  amount: number
+  description?: string
+  event_id?: string
+  created_at: string
+}
+
+export interface Setlist {
+  id: string
+  name: string
+  created_at: string
+}
+
+export interface SetlistSong {
+  id: string
+  setlist_id: string
+  song_id: string
+  position: number
+  created_at: string
+}
+
+export interface ActivityLog {
+  id: string
+  user_id?: string
+  action: string
+  entity_type: string
+  entity_name: string
+  created_at: string
+}

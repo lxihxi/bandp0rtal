@@ -10,6 +10,7 @@ import { RowActions } from '@/components/ui/RowActions'
 import { DetailPanel, DetailRow } from '@/components/ui/DetailPanel'
 import { ProbeMode } from '@/modules/calendar/ProbeMode'
 import type { Song } from '@/types'
+import { logActivity } from '@/hooks/useLogActivity'
 
 const STATUSES = ['IDEE', 'SCHREIBEN', 'ARRANGEMENT', 'DEMO', 'FERTIG', 'VERÖFFENTLICHT'] as const
 
@@ -49,8 +50,11 @@ export default function SongsPage() {
   })
 
   const deleteSong = useMutation({
-    mutationFn: async (id: string) => { await supabase.from('songs').delete().eq('id', id) },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['songs'] }); qc.invalidateQueries({ queryKey: ['songs-in-progress'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }) },
+    mutationFn: async ({ id }: { id: string; title: string }) => { await supabase.from('songs').delete().eq('id', id) },
+    onSuccess: (_, { title }) => {
+      qc.invalidateQueries({ queryKey: ['songs'] }); qc.invalidateQueries({ queryKey: ['songs-in-progress'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      logActivity('gelöscht', 'song', title)
+    },
   })
 
   const filtered = filter === 'alle' ? songs : songs.filter(s => s.status === filter)
@@ -163,7 +167,7 @@ export default function SongsPage() {
                   </div>
                   <RowActions actions={[
                     { label: 'Bearbeiten', onClick: () => { setSelected(song); setView('edit') } },
-                    { label: 'Löschen', onClick: () => deleteSong.mutate(song.id), danger: true },
+                    { label: 'Löschen', onClick: () => deleteSong.mutate({ id: song.id, title: song.title }), danger: true },
                   ]} />
                 </div>
               </div>
@@ -195,7 +199,7 @@ function SongForm({ initial, onClose, onSaved, inline }: { initial: Song | null;
     e.preventDefault()
     const payload = { title, status, progress: parseInt(progress) || 0, bpm: bpm ? parseInt(bpm) : null, key: key || null, notes: notes || null }
     if (initial) { await supabase.from('songs').update(payload).eq('id', initial.id) }
-    else { await supabase.from('songs').insert(payload) }
+    else { await supabase.from('songs').insert(payload); logActivity('erstellt', 'song', title) }
     onSaved()
   }
 

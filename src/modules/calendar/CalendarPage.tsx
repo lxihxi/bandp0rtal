@@ -10,6 +10,7 @@ import { RowActions } from '@/components/ui/RowActions'
 import { DetailPanel, DetailRow } from '@/components/ui/DetailPanel'
 import { MonthView } from './MonthView'
 import type { Event, Song } from '@/types'
+import { logActivity } from '@/hooks/useLogActivity'
 
 const TYPE_STYLE: Record<string, string> = {
   show: 'bg-red-950 text-red-300',
@@ -65,11 +66,12 @@ export default function CalendarPage() {
   })
 
   const deleteEvent = useMutation({
-    mutationFn: async (id: string) => { await supabase.from('events').delete().eq('id', id) },
-    onSuccess: () => {
+    mutationFn: async ({ id }: { id: string; title: string }) => { await supabase.from('events').delete().eq('id', id) },
+    onSuccess: (_, { title }) => {
       qc.invalidateQueries({ queryKey: ['events'] })
       qc.invalidateQueries({ queryKey: ['next-events'] })
       qc.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      logActivity('gelöscht', 'event', title)
     },
   })
 
@@ -204,7 +206,7 @@ export default function CalendarPage() {
                       <div onClick={e => e.stopPropagation()}>
                         <RowActions actions={[
                           { label: 'Details', onClick: () => { setSelected(event); setView('detail'); setDayPanel(null) } },
-                          { label: 'Löschen', onClick: () => { deleteEvent.mutate(event.id) }, danger: true },
+                          { label: 'Löschen', onClick: () => { deleteEvent.mutate({ id: event.id, title: event.title }) }, danger: true },
                         ]} />
                       </div>
                     </div>
@@ -245,7 +247,7 @@ export default function CalendarPage() {
                         <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${TYPE_STYLE[event.type]}`}>{TYPE_LABEL[event.type]}</span>
                         <RowActions actions={[
                           { label: 'Details', onClick: () => { setSelected(event); setView('detail') } },
-                          { label: 'Löschen', onClick: () => deleteEvent.mutate(event.id), danger: true },
+                          { label: 'Löschen', onClick: () => deleteEvent.mutate({ id: event.id, title: event.title }), danger: true },
                         ]} />
                       </div>
                     </div>
@@ -272,7 +274,7 @@ export default function CalendarPage() {
                       <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
                         <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${TYPE_STYLE[event.type]}`}>{TYPE_LABEL[event.type]}</span>
                         <RowActions actions={[
-                          { label: 'Löschen', onClick: () => deleteEvent.mutate(event.id), danger: true },
+                          { label: 'Löschen', onClick: () => deleteEvent.mutate({ id: event.id, title: event.title }), danger: true },
                         ]} />
                       </div>
                     </div>
@@ -404,7 +406,7 @@ function EventForm({ initial, prefillDate, onClose, onSaved, inline }: {
     e.preventDefault()
     const payload = { title, type, date: new Date(date).toISOString(), venue: venue || null, fee: fee ? parseFloat(fee) : null, notes: notes || null }
     if (initial) { await supabase.from('events').update(payload).eq('id', initial.id) }
-    else { await supabase.from('events').insert(payload) }
+    else { await supabase.from('events').insert(payload); logActivity('erstellt', 'event', title) }
     onSaved()
   }
 

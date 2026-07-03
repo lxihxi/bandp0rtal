@@ -16,6 +16,10 @@ import MerchPage from '@/modules/merch/MerchPage'
 import FilesPage from '@/modules/files/FilesPage'
 import WikiPage from '@/modules/wiki/WikiPage'
 import SettingsPage from '@/modules/settings/SettingsPage'
+import FinancesPage from '@/modules/finances/FinancesPage'
+import AlbumsPage from '@/modules/albums/AlbumsPage'
+import SetlistsPage from '@/modules/setlists/SetlistsPage'
+import ActivityPage from '@/modules/activity/ActivityPage'
 
 const queryClient = new QueryClient()
 
@@ -70,6 +74,10 @@ export default function App() {
             <Route path="/files" element={<FilesPage />} />
             <Route path="/wiki" element={<WikiPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/finances" element={<FinancesPage />} />
+            <Route path="/albums" element={<AlbumsPage />} />
+            <Route path="/setlists" element={<SetlistsPage />} />
+            <Route path="/activity" element={<ActivityPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Calendar, Music, AlertCircle, Target, ShoppingBag } from 'lucide-react'
+import { Calendar, Music, AlertCircle, Target, ShoppingBag, Activity } from 'lucide-react'
 import { Card, CardHeader, CardBody } from '@/components/ui/Card'
 import {
   useDashboardStats,
@@ -9,6 +9,7 @@ import {
   useGoals,
   useLowStockMerch,
 } from '@/hooks/useDashboard'
+import { useActivityLog, timeAgo } from '@/modules/activity/ActivityPage'
 
 const STATUS_COLORS: Record<string, string> = {
   IDEE: 'bg-gray-700 text-gray-300',
@@ -40,6 +41,7 @@ export default function DashboardPage() {
   const { data: overdueTasks } = useOverdueTasks()
   const { data: goals } = useGoals()
   const { data: lowStock } = useLowStockMerch()
+  const { data: activityEntries = [] } = useActivityLog(8)
 
   return (
     <div className="space-y-6">
@@ -223,6 +225,36 @@ export default function DashboardPage() {
           </CardBody>
         </Card>
       </div>
+
+      {/* Aktivitäts-Feed */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2 text-sm font-medium text-white">
+            <Activity size={14} className="text-red-500" />
+            Letzte Aktivitäten
+          </div>
+          <Link to="/activity" className="text-xs text-gray-500 hover:text-red-400 transition-colors">Alle →</Link>
+        </CardHeader>
+        <CardBody className="space-y-0 -mx-4">
+          {activityEntries.length === 0 ? (
+            <p className="text-gray-600 text-sm text-center py-4">Noch keine Aktivitäten</p>
+          ) : (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (activityEntries as any[]).map(entry => {
+              const who = Array.isArray(entry.profiles) ? entry.profiles[0]?.display_name : entry.profiles?.display_name
+              return (
+                <div key={entry.id} className="flex items-center gap-2 px-4 py-2 hover:bg-white/5">
+                  <span className="text-xs text-gray-300 flex-1 truncate">
+                    <span className="text-white">{who ?? '—'}</span>
+                    {' '}{entry.action}{' '}„{entry.entity_name}"
+                  </span>
+                  <span className="text-[10px] text-gray-600 flex-shrink-0">{timeAgo(entry.created_at)}</span>
+                </div>
+              )
+            })
+          )}
+        </CardBody>
+      </Card>
 
       {/* Merch Nachbestellen */}
       {lowStock && lowStock.length > 0 && (

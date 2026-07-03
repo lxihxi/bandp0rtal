@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { Plus, Mail, Phone, Globe } from 'lucide-react'
+import { logActivity } from '@/hooks/useLogActivity'
 import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
@@ -40,8 +41,11 @@ export default function ContactsPage() {
   })
 
   const deleteContact = useMutation({
-    mutationFn: async (id: string) => { await supabase.from('contacts').delete().eq('id', id) },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['contacts'] }),
+    mutationFn: async ({ id }: { id: string; name: string }) => { await supabase.from('contacts').delete().eq('id', id) },
+    onSuccess: (_, { name }) => {
+      qc.invalidateQueries({ queryKey: ['contacts'] })
+      logActivity('gelöscht', 'contact', name)
+    },
   })
 
   const filtered = contacts.filter(c => filter === 'alle' || c.type === filter).filter(c => !search || c.name.toLowerCase().includes(search.toLowerCase()))
@@ -124,7 +128,7 @@ export default function ContactsPage() {
                   <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${TYPE_STYLE[contact.type]}`}>{TYPE_LABEL[contact.type]}</span>
                   <RowActions actions={[
                     { label: 'Bearbeiten', onClick: () => { setSelected(contact); setView('edit') } },
-                    { label: 'Löschen', onClick: () => deleteContact.mutate(contact.id), danger: true },
+                    { label: 'Löschen', onClick: () => deleteContact.mutate({ id: contact.id, name: contact.name }), danger: true },
                   ]} />
                 </div>
               </div>
@@ -151,7 +155,7 @@ function ContactForm({ initial, onClose, onSaved, inline }: { initial: Contact |
     e.preventDefault()
     const payload = { name, type, email: email || null, phone: phone || null, website: website || null, notes: notes || null }
     if (initial) { await supabase.from('contacts').update(payload).eq('id', initial.id) }
-    else { await supabase.from('contacts').insert(payload) }
+    else { await supabase.from('contacts').insert(payload); logActivity('erstellt', 'contact', name) }
     onSaved()
   }
 

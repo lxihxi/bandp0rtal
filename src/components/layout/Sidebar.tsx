@@ -1,25 +1,36 @@
 import { NavLink } from 'react-router-dom'
 import {
-  LayoutDashboard, Users, Music, FolderKanban, Calendar,
-  CheckSquare, ShoppingBag, FolderOpen, BookOpen, Settings
+  LayoutDashboard, Users, Music, Disc3, ListMusic,
+  FolderKanban, Calendar, CheckSquare, ShoppingBag,
+  FolderOpen, BookOpen, Settings, TrendingUp, Activity
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 
 const navMain = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/contacts', icon: Users, label: 'CRM & Kontakte' },
-  { to: '/songs', icon: Music, label: 'Songs & Discography' },
-  { to: '/projects', icon: FolderKanban, label: 'Projekte & Ziele' },
-  { to: '/calendar', icon: Calendar, label: 'Kalender' },
-  { to: '/tasks', icon: CheckSquare, label: 'Aufgaben' },
-  { to: '/merch', icon: ShoppingBag, label: 'Merch & Inventar' },
+  { to: '/',         icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/calendar', icon: Calendar,        label: 'Kalender' },
+  { to: '/tasks',    icon: CheckSquare,     label: 'Aufgaben' },
+  { to: '/projects', icon: FolderKanban,    label: 'Projekte & Ziele' },
+]
+
+const navMusik = [
+  { to: '/songs',     icon: Music,     label: 'Songs' },
+  { to: '/albums',    icon: Disc3,     label: 'Alben & Releases' },
+  { to: '/setlists',  icon: ListMusic, label: 'Setlist-Vorlagen' },
+]
+
+const navBusiness = [
+  { to: '/contacts',  icon: Users,        label: 'CRM & Kontakte' },
+  { to: '/finances',  icon: TrendingUp,   label: 'Finanzen' },
+  { to: '/merch',     icon: ShoppingBag,  label: 'Merch & Inventar' },
 ]
 
 const navWissen = [
-  { to: '/files', icon: FolderOpen, label: 'Dateien & EPK' },
-  { to: '/wiki', icon: BookOpen, label: 'Notizen / Wiki' },
-  { to: '/settings', icon: Settings, label: 'Einstellungen' },
+  { to: '/files',    icon: FolderOpen, label: 'Dateien & EPK' },
+  { to: '/wiki',     icon: BookOpen,   label: 'Notizen / Wiki' },
+  { to: '/activity', icon: Activity,   label: 'Aktivität' },
+  { to: '/settings', icon: Settings,   label: 'Einstellungen' },
 ]
 
 function NavItem({ to, icon: Icon, label, onNavigate }: { to: string; icon: React.ElementType; label: string; onNavigate?: () => void }) {
@@ -43,6 +54,10 @@ function NavItem({ to, icon: Icon, label, onNavigate }: { to: string; icon: Reac
   )
 }
 
+function SectionLabel({ label }: { label: string }) {
+  return <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-gray-600 font-medium">{label}</p>
+}
+
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <aside className="w-56 h-full flex-shrink-0 bg-[#0f0f0f] border-r border-[#1f1f1f] flex flex-col">
@@ -53,14 +68,16 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
-        <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-gray-600 font-medium">
-          Hauptbereich
-        </p>
+        <SectionLabel label="Hauptbereich" />
         {navMain.map(item => <NavItem key={item.to} {...item} onNavigate={onNavigate} />)}
 
-        <p className="px-3 pt-4 pb-2 text-[10px] uppercase tracking-widest text-gray-600 font-medium">
-          Wissen
-        </p>
+        <SectionLabel label="Musik" />
+        {navMusik.map(item => <NavItem key={item.to} {...item} onNavigate={onNavigate} />)}
+
+        <SectionLabel label="Business" />
+        {navBusiness.map(item => <NavItem key={item.to} {...item} onNavigate={onNavigate} />)}
+
+        <SectionLabel label="Wissen" />
         {navWissen.map(item => <NavItem key={item.to} {...item} onNavigate={onNavigate} />)}
       </nav>
 
