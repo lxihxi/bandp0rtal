@@ -46,7 +46,7 @@ export default function DashboardPage() {
       <h1 className="text-2xl font-bold text-white">Dashboard</h1>
 
       {/* Quick add */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
         {[
           { to: '/contacts?new=1', label: '+ Kontakt' },
           { to: '/songs?new=1', label: '+ Song' },
@@ -66,7 +66,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <KpiCard
           value={stats?.nextShow ? `${stats.nextShow.daysUntil}T` : '-'}
           label="Nächste Show"
@@ -99,7 +99,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
 
         {/* Nächste Events */}
         <Card>

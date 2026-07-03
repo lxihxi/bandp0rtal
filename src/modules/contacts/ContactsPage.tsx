@@ -64,7 +64,7 @@ export default function ContactsPage() {
         />
       </div>
 
-      <div className="flex gap-1 flex-wrap">
+      <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
         {([['alle', 'Alle'], ['label', 'Label'], ['booker', 'Booker'], ['press', 'Presse'], ['producer', 'Produzent'], ['other', 'Sonstige']] as const).map(([key, label]) => (
           <button
             key={key}

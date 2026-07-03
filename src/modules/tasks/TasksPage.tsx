@@ -78,7 +78,7 @@ export default function TasksPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1">
+      <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
         {([['alle', 'Alle'], ['offen', 'Offen'], ['ueberfaellig', 'Überfällig'], ['erledigt', 'Erledigt']] as const).map(([key, label]) => (
           <button
             key={key}

@@ -52,7 +52,7 @@ export default function SongsPage() {
       </div>
 
       {/* Status filter */}
-      <div className="flex gap-1 flex-wrap">
+      <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setFilter('alle')}
           className={`px-3 py-1.5 text-xs rounded transition-colors ${filter === 'alle' ? 'bg-red-600 text-white' : 'bg-[#1a1a1a] text-gray-400 hover:text-white'}`}

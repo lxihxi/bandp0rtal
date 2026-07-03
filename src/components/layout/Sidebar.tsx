@@ -22,14 +22,15 @@ const navWissen = [
   { to: '/settings', icon: Settings, label: 'Einstellungen' },
 ]
 
-function NavItem({ to, icon: Icon, label }: { to: string; icon: React.ElementType; label: string }) {
+function NavItem({ to, icon: Icon, label, onNavigate }: { to: string; icon: React.ElementType; label: string; onNavigate?: () => void }) {
   return (
     <NavLink
       to={to}
       end={to === '/'}
+      onClick={onNavigate}
       className={({ isActive }) =>
         cn(
-          'flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors',
+          'flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-colors',
           isActive
             ? 'bg-red-600/20 text-red-400'
             : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -42,9 +43,9 @@ function NavItem({ to, icon: Icon, label }: { to: string; icon: React.ElementTyp
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <aside className="w-56 flex-shrink-0 bg-[#0f0f0f] border-r border-[#1f1f1f] flex flex-col">
+    <aside className="w-56 h-full flex-shrink-0 bg-[#0f0f0f] border-r border-[#1f1f1f] flex flex-col">
       <div className="px-4 py-5 border-b border-[#1f1f1f]">
         <span className="text-lg font-bold text-white">
           band<span className="text-red-500">p</span>O<span className="text-red-500">rtal</span>
@@ -55,12 +56,12 @@ export default function Sidebar() {
         <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-gray-600 font-medium">
           Hauptbereich
         </p>
-        {navMain.map(item => <NavItem key={item.to} {...item} />)}
+        {navMain.map(item => <NavItem key={item.to} {...item} onNavigate={onNavigate} />)}
 
         <p className="px-3 pt-4 pb-2 text-[10px] uppercase tracking-widest text-gray-600 font-medium">
           Wissen
         </p>
-        {navWissen.map(item => <NavItem key={item.to} {...item} />)}
+        {navWissen.map(item => <NavItem key={item.to} {...item} onNavigate={onNavigate} />)}
       </nav>
 
       <div className="p-3 border-t border-[#1f1f1f]">
