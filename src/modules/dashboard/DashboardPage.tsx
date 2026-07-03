@@ -73,27 +73,31 @@ export default function DashboardPage() {
         <KpiCard
           value={stats?.nextShow ? `${stats.nextShow.daysUntil}T` : '-'}
           label="Nächste Show"
-          color="text-red-400"
+          color="text-white"
           sub={stats?.nextShow ? new Date(stats.nextShow.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : 'Keine geplant'}
         />
         <KpiCard
           value={stats?.nextProbe ? `${stats.nextProbe.daysUntil}T` : '-'}
           label="Nächste Probe"
-          color="text-yellow-400"
+          color="text-white"
           sub={stats?.nextProbe ? new Date(stats.nextProbe.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : 'Keine geplant'}
         />
-        <KpiCard value={stats?.songsInWork ?? 0} label="Songs in Arbeit" color="text-blue-400" />
-        <KpiCard value={stats?.openTasks ?? 0} label="Offene Aufgaben" color="text-yellow-400" />
-        <KpiCard value={stats?.overdueTasks ?? 0} label="Überfällig" color={stats?.overdueTasks ? 'text-red-500' : 'text-gray-500'} />
+        <KpiCard value={stats?.songsInWork ?? 0} label="Songs in Arbeit" color="text-white" />
+        <KpiCard value={stats?.openTasks ?? 0} label="Offene Aufgaben" color="text-white" />
+        <KpiCard
+          value={stats?.overdueTasks ?? 0}
+          label="Überfällig"
+          color={stats?.overdueTasks ? 'text-red-500' : 'text-gray-600'}
+        />
         <KpiCard
           value={stats?.lowMerchCount ?? 0}
           label="Merch Niedrig"
-          color={stats?.lowMerchCount ? 'text-orange-400' : 'text-gray-500'}
+          color={stats?.lowMerchCount ? 'text-orange-400' : 'text-gray-600'}
         />
         <KpiCard
           value={stats?.goalsAvg != null ? `${stats.goalsAvg}%` : '-'}
           label="Ziele Ø"
-          color="text-green-400"
+          color="text-white"
         />
       </div>
 
