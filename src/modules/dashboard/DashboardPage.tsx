@@ -19,10 +19,11 @@ const STATUS_COLORS: Record<string, string> = {
   VERÖFFENTLICHT: 'bg-red-900 text-red-300',
 }
 
-function KpiCard({ value, label, color = 'text-yellow-400' }: { value: number; label: string; color?: string }) {
+function KpiCard({ value, label, color = 'text-yellow-400', sub }: { value: string | number; label: string; color?: string; sub?: string }) {
   return (
     <Card className="p-4">
-      <div className={`text-3xl font-bold ${color}`}>{value}</div>
+      <div className={`text-2xl font-bold leading-tight ${color}`}>{value}</div>
+      {sub && <div className="text-xs text-gray-600 mt-0.5">{sub}</div>}
       <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">{label}</div>
     </Card>
   )
@@ -69,10 +70,31 @@ export default function DashboardPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KpiCard value={stats?.singles ?? 0} label="Veröff. Singles" />
-        <KpiCard value={stats?.openTasks ?? 0} label="Offene Aufgaben" />
-        <KpiCard value={stats?.overdueTasks ?? 0} label="Überfällig" color="text-red-500" />
-        <KpiCard value={stats?.shows ?? 0} label="Shows gesamt" />
+        <KpiCard
+          value={stats?.nextShow ? `${stats.nextShow.daysUntil}T` : '-'}
+          label="Nächste Show"
+          color="text-red-400"
+          sub={stats?.nextShow ? new Date(stats.nextShow.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : 'Keine geplant'}
+        />
+        <KpiCard
+          value={stats?.nextProbe ? `${stats.nextProbe.daysUntil}T` : '-'}
+          label="Nächste Probe"
+          color="text-yellow-400"
+          sub={stats?.nextProbe ? new Date(stats.nextProbe.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : 'Keine geplant'}
+        />
+        <KpiCard value={stats?.songsInWork ?? 0} label="Songs in Arbeit" color="text-blue-400" />
+        <KpiCard value={stats?.openTasks ?? 0} label="Offene Aufgaben" color="text-yellow-400" />
+        <KpiCard value={stats?.overdueTasks ?? 0} label="Überfällig" color={stats?.overdueTasks ? 'text-red-500' : 'text-gray-500'} />
+        <KpiCard
+          value={stats?.lowMerchCount ?? 0}
+          label="Merch Niedrig"
+          color={stats?.lowMerchCount ? 'text-orange-400' : 'text-gray-500'}
+        />
+        <KpiCard
+          value={stats?.goalsAvg != null ? `${stats.goalsAvg}%` : '-'}
+          label="Ziele Ø"
+          color="text-green-400"
+        />
       </div>
 
       {/* Main grid */}

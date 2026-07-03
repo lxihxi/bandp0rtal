@@ -5,20 +5,42 @@ export function useDashboardStats() {
   return useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      const today = new Date().toISOString()
+      const now = new Date().toISOString()
+      const today = now.split('T')[0]
 
-      const [singles, openTasks, overdueTasks, shows] = await Promise.all([
-        supabase.from('songs').select('id', { count: 'exact' }).eq('status', 'VERÖFFENTLICHT'),
+      const [openTasks, overdueTasks, songsInWork, nextShow, nextProbe, lowMerch, goals] = await Promise.all([
         supabase.from('tasks').select('id', { count: 'exact' }).eq('done', false),
-        supabase.from('tasks').select('id', { count: 'exact' }).eq('done', false).lt('due_date', today.split('T')[0]),
-        supabase.from('events').select('id', { count: 'exact' }).eq('type', 'show'),
+        supabase.from('tasks').select('id', { count: 'exact' }).eq('done', false).lt('due_date', today),
+        supabase.from('songs').select('id', { count: 'exact' }).neq('status', 'VERÖFFENTLICHT'),
+        supabase.from('events').select('date').eq('type', 'show').gte('date', now).order('date').limit(1),
+        supabase.from('events').select('date').eq('type', 'probe').gte('date', now).order('date').limit(1),
+        supabase.from('merch_items').select('id, stock, reorder_threshold'),
+        supabase.from('goals').select('current_value, target_value').eq('year', new Date().getFullYear()),
       ])
 
+      const lowMerchCount = (lowMerch.data ?? []).filter(i => i.stock <= i.reorder_threshold).length
+
+      const goalsData = goals.data ?? []
+      const goalsAvg = goalsData.length > 0
+        ? Math.round(goalsData.reduce((sum, g) => sum + Math.min(100, (g.current_value / g.target_value) * 100), 0) / goalsData.length)
+        : null
+
+      const nextShowDate = nextShow.data?.[0]?.date ?? null
+      const nextProbeDate = nextProbe.data?.[0]?.date ?? null
+
+      function daysUntil(iso: string) {
+        const diff = new Date(iso).getTime() - Date.now()
+        return Math.ceil(diff / (1000 * 60 * 60 * 24))
+      }
+
       return {
-        singles: singles.count ?? 0,
         openTasks: openTasks.count ?? 0,
         overdueTasks: overdueTasks.count ?? 0,
-        shows: shows.count ?? 0,
+        songsInWork: songsInWork.count ?? 0,
+        nextShow: nextShowDate ? { date: nextShowDate, daysUntil: daysUntil(nextShowDate) } : null,
+        nextProbe: nextProbeDate ? { date: nextProbeDate, daysUntil: daysUntil(nextProbeDate) } : null,
+        lowMerchCount,
+        goalsAvg,
       }
     },
   })
