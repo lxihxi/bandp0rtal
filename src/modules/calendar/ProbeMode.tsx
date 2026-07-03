@@ -29,7 +29,7 @@ function fmt(s: number) {
 }
 
 interface ProbeModeProps {
-  event: Event
+  event?: Event
   onClose: () => void
 }
 
@@ -45,35 +45,43 @@ export function ProbeMode({ event, onClose }: ProbeModeProps) {
   const currentIdxRef = useRef(0)
   currentIdxRef.current = currentIdx
 
-  const { data: setlistData, isLoading } = useQuery({
-    queryKey: ['setlist', event.id],
+  const { data: setlistData, isLoading: setlistLoading } = useQuery({
+    queryKey: ['setlist', event?.id ?? 'none'],
+    enabled: !!event,
     queryFn: async () => {
       const { data } = await supabase
         .from('event_songs')
         .select('id, position, song_id, songs(id, title, bpm, key, notes)')
-        .eq('event_id', event.id)
+        .eq('event_id', event!.id)
         .order('position')
       return data ?? []
     },
   })
 
-  const { data: allSongs = [] } = useQuery<Song[]>({
+  const { data: allSongs = [], isLoading: songsLoading } = useQuery<Song[]>({
     queryKey: ['songs'],
     queryFn: async () => { const { data } = await supabase.from('songs').select('*').order('title'); return data ?? [] },
   })
 
+  const isLoading = event ? setlistLoading : songsLoading
+
   useEffect(() => {
     if (isLoading) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const entries: any[] = setlistData ?? []
-    const list: SongState[] = entries.map(e => {
-      const s = Array.isArray(e.songs) ? e.songs[0] : e.songs
-      return { songId: e.song_id, title: s?.title ?? '?', bpm: s?.bpm, key: s?.key, notes: s?.notes, status: 'pending', timeSeconds: 0, probeNote: '' }
-    })
+    let list: SongState[]
+    if (event) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const entries: any[] = setlistData ?? []
+      list = entries.map(e => {
+        const s = Array.isArray(e.songs) ? e.songs[0] : e.songs
+        return { songId: e.song_id, title: s?.title ?? '?', bpm: s?.bpm, key: s?.key, notes: s?.notes, status: 'pending', timeSeconds: 0, probeNote: '' }
+      })
+    } else {
+      list = allSongs.map(s => ({ songId: s.id, title: s.title, bpm: s.bpm, key: s.key, notes: s.notes, status: 'pending' as SongStatus, timeSeconds: 0, probeNote: '' }))
+    }
     if (list.length > 0) list[0].status = 'playing'
     setSongs(list)
     setPhase('running')
-  }, [isLoading, setlistData])
+  }, [isLoading, setlistData, allSongs, event])
 
   useEffect(() => {
     if (phase !== 'running' || paused) {
@@ -138,7 +146,7 @@ export function ProbeMode({ event, onClose }: ProbeModeProps) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#1a1a1a]">
           <div>
             <div className="text-xs text-gray-500 uppercase tracking-wider">Probe abgeschlossen</div>
-            <div className="text-base font-bold text-white">{event.title}</div>
+            {event && <div className="text-base font-bold text-white">{event.title}</div>}
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors"><X size={20} /></button>
         </div>
@@ -189,7 +197,7 @@ export function ProbeMode({ event, onClose }: ProbeModeProps) {
       <div className="flex items-center gap-3 px-4 py-3 border-b border-[#1a1a1a] bg-[#0d0d0d] flex-shrink-0">
         <div className="flex-1 min-w-0">
           <div className="text-[10px] text-blue-400 uppercase tracking-wider">Live-Probe</div>
-          <div className="text-sm font-semibold text-white truncate">{event.title}</div>
+          {event && <div className="text-sm font-semibold text-white truncate">{event.title}</div>}
         </div>
         <div className="flex items-center gap-2">
           <div className="text-center min-w-[56px]">

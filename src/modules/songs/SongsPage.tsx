@@ -8,6 +8,7 @@ import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/F
 import { Card, CardBody } from '@/components/ui/Card'
 import { RowActions } from '@/components/ui/RowActions'
 import { DetailPanel, DetailRow } from '@/components/ui/DetailPanel'
+import { ProbeMode } from '@/modules/calendar/ProbeMode'
 import type { Song } from '@/types'
 
 const STATUSES = ['IDEE', 'SCHREIBEN', 'ARRANGEMENT', 'DEMO', 'FERTIG', 'VERÖFFENTLICHT'] as const
@@ -30,6 +31,7 @@ export default function SongsPage() {
   const [selected, setSelected] = useState<Song | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState<string>('alle')
+  const [probeOpen, setProbeOpen] = useState(false)
 
   useEffect(() => {
     if (searchParams.get('new') === '1') {
@@ -103,16 +105,26 @@ export default function SongsPage() {
     )
   }
 
+  if (probeOpen) return <ProbeMode onClose={() => setProbeOpen(false)} />
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Songs & Discography</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
-        >
-          <Plus size={14} /> Neuer Song
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setProbeOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm rounded transition-colors"
+          >
+            ▶ Probe starten
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+          >
+            <Plus size={14} /> Neuer Song
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">

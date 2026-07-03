@@ -9,7 +9,6 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card'
 import { RowActions } from '@/components/ui/RowActions'
 import { DetailPanel, DetailRow } from '@/components/ui/DetailPanel'
 import { MonthView } from './MonthView'
-import { ProbeMode } from './ProbeMode'
 import type { Event, Song } from '@/types'
 
 const TYPE_STYLE: Record<string, string> = {
@@ -55,7 +54,6 @@ export default function CalendarPage() {
   const [calYear, setCalYear] = useState(new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [dayPanel, setDayPanel] = useState<string | null>(null)
-  const [probeEvent, setProbeEvent] = useState<Event | null>(null)
 
   useEffect(() => {
     if (searchParams.get('new') === '1') { setShowForm(true); setSearchParams({}, { replace: true }) }
@@ -85,11 +83,6 @@ export default function CalendarPage() {
   const upcoming = events.filter(e => e.date >= now)
   const past = events.filter(e => e.date < now)
 
-  // Probe overlay
-  if (probeEvent) {
-    return <ProbeMode event={probeEvent} onClose={() => setProbeEvent(null)} />
-  }
-
   // Event detail
   if (view === 'detail' && selected) {
     const fresh = events.find(e => e.id === selected.id) ?? selected
@@ -106,14 +99,6 @@ export default function CalendarPage() {
               {fresh.venue && <DetailRow label="Venue">{fresh.venue}</DetailRow>}
               {fresh.fee != null && <DetailRow label="Gage">{fresh.fee} €</DetailRow>}
               {fresh.notes && <DetailRow label="Notizen"><span className="whitespace-pre-wrap">{fresh.notes}</span></DetailRow>}
-              {fresh.type === 'probe' && (
-                <button
-                  onClick={() => setProbeEvent(fresh)}
-                  className="w-full py-3 bg-blue-700 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  ▶ Probe starten
-                </button>
-              )}
             </CardBody>
           </Card>
           <SetlistSection eventId={fresh.id} />
