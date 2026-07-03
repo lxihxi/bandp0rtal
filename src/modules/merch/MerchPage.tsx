@@ -133,14 +133,14 @@ export default function MerchPage() {
                     <div className="text-sm text-gray-200">{item.name}</div>
                     {sub && <div className="text-xs text-gray-500">{sub}</div>}
                   </div>
-                  <div className="flex items-center gap-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                    {item.price != null && <span className="text-xs text-gray-500">{item.price}€</span>}
+                  <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                    {item.price != null && <span className="text-xs text-gray-500 hidden sm:inline">{item.price}€</span>}
                     <div className="flex items-center gap-1">
-                      <button onClick={() => adjustStock.mutate({ id: item.id, delta: -1 })} className="w-6 h-6 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded flex items-center justify-center transition-colors">-</button>
-                      <span className={`text-sm font-medium w-8 text-center ${isLow ? 'text-red-400' : 'text-white'}`}>{item.stock}</span>
-                      <button onClick={() => adjustStock.mutate({ id: item.id, delta: 1 })} className="w-6 h-6 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded flex items-center justify-center transition-colors">+</button>
+                      <button onClick={() => adjustStock.mutate({ id: item.id, delta: -1 })} className="w-7 h-7 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded flex items-center justify-center transition-colors text-base">-</button>
+                      <span className={`text-sm font-medium w-7 text-center ${isLow ? 'text-red-400' : 'text-white'}`}>{item.stock}</span>
+                      <button onClick={() => adjustStock.mutate({ id: item.id, delta: 1 })} className="w-7 h-7 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded flex items-center justify-center transition-colors text-base">+</button>
                     </div>
-                    {isLow && <span className="text-[10px] bg-red-950 text-red-400 px-2 py-0.5 rounded">{item.stock <= 0 ? 'LEER' : 'NIEDRIG'}</span>}
+                    {isLow && <span className="text-[10px] bg-red-950 text-red-400 px-1.5 py-0.5 rounded hidden sm:inline">{item.stock <= 0 ? 'LEER' : 'NIEDRIG'}</span>}
                     <RowActions actions={[
                       { label: 'Bearbeiten', onClick: () => { setEditing(item); setShowForm(true) } },
                       { label: 'Löschen', onClick: () => deleteItem.mutate(item.id), danger: true },

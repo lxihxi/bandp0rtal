@@ -76,20 +76,32 @@ export function MonthView({ year, month, events, onPrev, onNext, onDayClick, onE
                   <div className={`text-xs w-6 h-6 flex items-center justify-center rounded-full mb-1 ${isToday ? 'bg-red-600 text-white font-bold' : 'text-gray-400'}`}>
                     {day}
                   </div>
-                  <div className="space-y-0.5">
-                    {dayEvents.slice(0, 3).map(event => (
-                      <div
-                        key={event.id}
-                        onClick={e => { e.stopPropagation(); onEventClick(event) }}
-                        className="text-[10px] truncate px-1 py-0.5 rounded cursor-pointer hover:opacity-80"
-                        style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
-                      >
-                        <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${TYPE_COLOR[event.type]}`} />
-                        <span className="text-gray-300">{event.title}</span>
-                      </div>
-                    ))}
-                    {dayEvents.length > 3 && <div className="text-[9px] text-gray-600 px-1">+{dayEvents.length - 3}</div>}
-                  </div>
+                  {/* Mobile: dots only */}
+                <div className="flex flex-wrap gap-0.5 sm:hidden">
+                  {dayEvents.slice(0, 4).map(event => (
+                    <span
+                      key={event.id}
+                      onClick={e => { e.stopPropagation(); onEventClick(event) }}
+                      className={`w-2 h-2 rounded-full cursor-pointer ${TYPE_COLOR[event.type]}`}
+                    />
+                  ))}
+                  {dayEvents.length > 4 && <span className="text-[8px] text-gray-600">+{dayEvents.length - 4}</span>}
+                </div>
+                {/* Desktop: title + dot */}
+                <div className="hidden sm:block space-y-0.5">
+                  {dayEvents.slice(0, 3).map(event => (
+                    <div
+                      key={event.id}
+                      onClick={e => { e.stopPropagation(); onEventClick(event) }}
+                      className="text-[10px] truncate px-1 py-0.5 rounded cursor-pointer hover:opacity-80"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+                    >
+                      <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${TYPE_COLOR[event.type]}`} />
+                      <span className="text-gray-300">{event.title}</span>
+                    </div>
+                  ))}
+                  {dayEvents.length > 3 && <div className="text-[9px] text-gray-600 px-1">+{dayEvents.length - 3}</div>}
+                </div>
                 </div>
               )
             })}

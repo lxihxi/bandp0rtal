@@ -109,20 +109,20 @@ export default function SongsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Songs & Discography</h1>
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="text-2xl font-bold text-white">Songs</h1>
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => setProbeOpen(true)}
             className="flex items-center gap-1.5 px-3 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm rounded transition-colors"
           >
-            ▶ Probe starten
+            ▶ <span className="hidden sm:inline">Probe starten</span><span className="sm:hidden">Probe</span>
           </button>
           <button
             onClick={() => setShowForm(true)}
             className="flex items-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
           >
-            <Plus size={14} /> Neuer Song
+            <Plus size={14} /> <span className="hidden sm:inline">Neuer Song</span><span className="sm:hidden">Song</span>
           </button>
         </div>
       </div>

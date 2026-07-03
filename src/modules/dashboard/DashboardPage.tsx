@@ -240,7 +240,7 @@ export default function DashboardPage() {
             <div className="flex flex-wrap gap-2">
               {lowStock.map(item => (
                 <div key={item.id} className="flex items-center gap-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded px-3 py-1.5">
-                  <span className="text-sm text-gray-300">{item.name}{item.variant ? ` ${item.variant}` : ''}</span>
+                  <span className="text-sm text-gray-300">{item.name}{[item.size, item.gender, item.color].filter(Boolean).length ? ` (${[item.size, item.gender, item.color].filter(Boolean).join(' · ')})` : ''}</span>
                   <span className="text-[10px] bg-red-900 text-red-300 px-1.5 py-0.5 rounded">
                     {item.stock <= 0 ? 'LEER' : 'NIEDRIG'}
                   </span>

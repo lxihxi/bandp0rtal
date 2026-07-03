@@ -194,29 +194,25 @@ export function ProbeMode({ event, onClose }: ProbeModeProps) {
   return (
     <div className="fixed inset-0 z-[60] bg-[#080808] flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-[#1a1a1a] bg-[#0d0d0d] flex-shrink-0">
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[#1a1a1a] bg-[#0d0d0d] flex-shrink-0">
         <div className="flex-1 min-w-0">
-          <div className="text-[10px] text-blue-400 uppercase tracking-wider">Live-Probe</div>
+          <div className="text-[10px] text-blue-400 uppercase tracking-wider leading-none mb-0.5">Live-Probe</div>
           {event && <div className="text-sm font-semibold text-white truncate">{event.title}</div>}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="text-center min-w-[56px]">
-            <div className="text-lg font-mono font-bold text-white tabular-nums">{fmt(sessionSeconds)}</div>
-          </div>
-          <button
-            onClick={() => setPaused(p => !p)}
-            title={paused ? 'Fortsetzen' : 'Pause'}
-            className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0 ${paused ? 'bg-red-600 hover:bg-red-700' : 'bg-[#1f1f1f] hover:bg-[#2a2a2a]'}`}
-          >
-            {paused ? <Play size={15} className="text-white ml-0.5" /> : <Pause size={15} className="text-gray-300" />}
-          </button>
-          <button
-            onClick={() => setPhase('ended')}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#1a1a1a] hover:bg-[#1f1f1f] rounded-lg transition-colors"
-          >
-            Beenden
-          </button>
-        </div>
+        <div className="text-lg font-mono font-bold text-white tabular-nums flex-shrink-0">{fmt(sessionSeconds)}</div>
+        <button
+          onClick={() => setPaused(p => !p)}
+          title={paused ? 'Fortsetzen' : 'Pause'}
+          className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0 ${paused ? 'bg-red-600 hover:bg-red-700' : 'bg-[#1f1f1f] hover:bg-[#2a2a2a]'}`}
+        >
+          {paused ? <Play size={15} className="text-white ml-0.5" /> : <Pause size={15} className="text-gray-300" />}
+        </button>
+        <button
+          onClick={() => setPhase('ended')}
+          className="px-2.5 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#1a1a1a] hover:bg-[#1f1f1f] rounded-lg transition-colors flex-shrink-0"
+        >
+          Beenden
+        </button>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
