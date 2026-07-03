@@ -57,6 +57,7 @@ export interface Task {
   assigned_to?: string
   project_id?: string
   event_id?: string
+  description?: string
   created_at: string
 }
 

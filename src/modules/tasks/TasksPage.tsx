@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Plus, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
-import { FormField, Input, Select, SubmitRow } from '@/components/ui/FormField'
+import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
 import { Card, CardBody } from '@/components/ui/Card'
 import { RowActions } from '@/components/ui/RowActions'
 import { DetailPanel, DetailRow } from '@/components/ui/DetailPanel'
@@ -108,6 +108,11 @@ export default function TasksPage() {
                 <DetailRow label="Zugewiesen an">{profileName(fresh.assigned_to)}</DetailRow>
               )}
             </div>
+            {fresh.description && (
+              <DetailRow label="Beschreibung">
+                <span className="whitespace-pre-wrap">{fresh.description}</span>
+              </DetailRow>
+            )}
           </CardBody>
         </Card>
       </DetailPanel>
@@ -176,13 +181,14 @@ export default function TasksPage() {
 
 function TaskForm({ initial, profiles, onClose, onSaved }: { initial: Task | null; profiles: { id: string; display_name: string }[]; onClose: () => void; onSaved: () => void }) {
   const [title, setTitle] = useState(initial?.title ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
   const [dueDate, setDueDate] = useState(initial?.due_date ?? '')
   const [priority, setPriority] = useState<string>(initial?.priority ?? 'mittel')
   const [assignedTo, setAssignedTo] = useState(initial?.assigned_to ?? '')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const payload = { title, due_date: dueDate || null, priority, assigned_to: assignedTo || null }
+    const payload = { title, description: description || null, due_date: dueDate || null, priority, assigned_to: assignedTo || null }
     if (initial) { await supabase.from('tasks').update(payload).eq('id', initial.id) }
     else { await supabase.from('tasks').insert(payload) }
     onSaved()
@@ -192,6 +198,7 @@ function TaskForm({ initial, profiles, onClose, onSaved }: { initial: Task | nul
     <Modal title={initial ? 'Aufgabe bearbeiten' : 'Neue Aufgabe'} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField label="Titel"><Input value={title} onChange={e => setTitle(e.target.value)} required placeholder="Aufgabentitel..." autoFocus /></FormField>
+        <FormField label="Beschreibung"><Textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="Details, Links, Infos..." /></FormField>
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Fälligkeit"><Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} /></FormField>
           <FormField label="Priorität">
