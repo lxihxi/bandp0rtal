@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { RowActions } from '@/components/ui/RowActions'
@@ -14,7 +15,12 @@ function formatDate(d: string) {
 
 export default function ProjectsPage() {
   const qc = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [showProjectForm, setShowProjectForm] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.get('new') === '1') { setShowProjectForm(true); setSearchParams({}, { replace: true }) }
+  }, [])
   const [showGoalForm, setShowGoalForm] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null)

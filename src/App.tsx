@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import AppLayout from '@/components/layout/AppLayout'
+import { GlobalSearch } from '@/components/ui/GlobalSearch'
 import LoginPage from '@/modules/auth/LoginPage'
 import DashboardPage from '@/modules/dashboard/DashboardPage'
 import ContactsPage from '@/modules/contacts/ContactsPage'
@@ -54,6 +55,7 @@ export default function App() {
           <Route
             element={
               <ProtectedRoute session={session}>
+                <GlobalSearch />
                 <AppLayout />
               </ProtectedRoute>
             }

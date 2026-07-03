@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
-import { Card } from '@/components/ui/Card'
+import { Card, CardBody } from '@/components/ui/Card'
 import { RowActions } from '@/components/ui/RowActions'
+import { DetailPanel, DetailRow } from '@/components/ui/DetailPanel'
 import type { Song } from '@/types'
 
 const STATUSES = ['IDEE', 'SCHREIBEN', 'ARRANGEMENT', 'DEMO', 'FERTIG', 'VERÖFFENTLICHT'] as const
@@ -19,11 +21,22 @@ const STATUS_STYLE: Record<string, string> = {
   VERÖFFENTLICHT: 'bg-red-950 text-red-300',
 }
 
+type View = 'list' | 'detail' | 'edit'
+
 export default function SongsPage() {
   const qc = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [view, setView] = useState<View>('list')
+  const [selected, setSelected] = useState<Song | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [editing, setEditing] = useState<Song | null>(null)
   const [filter, setFilter] = useState<string>('alle')
+
+  useEffect(() => {
+    if (searchParams.get('new') === '1') {
+      setShowForm(true)
+      setSearchParams({}, { replace: true })
+    }
+  }, [])
 
   const { data: songs = [] } = useQuery<Song[]>({
     queryKey: ['songs'],
@@ -35,37 +48,79 @@ export default function SongsPage() {
 
   const deleteSong = useMutation({
     mutationFn: async (id: string) => { await supabase.from('songs').delete().eq('id', id) },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['songs'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['songs'] }); qc.invalidateQueries({ queryKey: ['songs-in-progress'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }) },
   })
 
   const filtered = filter === 'alle' ? songs : songs.filter(s => s.status === filter)
+
+  if (view === 'detail' && selected) {
+    const fresh = songs.find(s => s.id === selected.id) ?? selected
+    return (
+      <>
+        <DetailPanel
+          title={fresh.title}
+          onBack={() => setView('list')}
+          onEdit={() => setView('edit')}
+        >
+          <Card>
+            <CardBody className="space-y-4">
+              <div className="flex items-center gap-3">
+                <span className={`text-xs px-2 py-1 rounded font-medium ${STATUS_STYLE[fresh.status]}`}>{fresh.status}</span>
+                <div className="flex-1 h-1.5 bg-[#2a2a2a] rounded-full">
+                  <div className="h-1.5 bg-red-600 rounded-full" style={{ width: `${fresh.progress}%` }} />
+                </div>
+                <span className="text-sm text-gray-400">{fresh.progress}%</span>
+              </div>
+              {(fresh.key || fresh.bpm) && (
+                <div className="flex gap-6">
+                  {fresh.key && <DetailRow label="Tonart">{fresh.key}</DetailRow>}
+                  {fresh.bpm && <DetailRow label="BPM">{fresh.bpm}</DetailRow>}
+                </div>
+              )}
+              {fresh.notes && <DetailRow label="Notizen"><span className="whitespace-pre-wrap">{fresh.notes}</span></DetailRow>}
+            </CardBody>
+          </Card>
+        </DetailPanel>
+        {view === 'detail' && showForm && (
+          <SongForm
+            initial={fresh}
+            onClose={() => setShowForm(false)}
+            onSaved={() => { qc.invalidateQueries({ queryKey: ['songs'] }); setShowForm(false) }}
+          />
+        )}
+      </>
+    )
+  }
+
+  if (view === 'edit' && selected) {
+    return (
+      <SongForm
+        initial={selected}
+        onClose={() => setView('detail')}
+        onSaved={() => { qc.invalidateQueries({ queryKey: ['songs'] }); setView('detail') }}
+        inline
+      />
+    )
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Songs & Discography</h1>
         <button
-          onClick={() => { setEditing(null); setShowForm(true) }}
+          onClick={() => setShowForm(true)}
           className="flex items-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
         >
           <Plus size={14} /> Neuer Song
         </button>
       </div>
 
-      {/* Status filter */}
       <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
-        <button
-          onClick={() => setFilter('alle')}
-          className={`px-3 py-1.5 text-xs rounded transition-colors ${filter === 'alle' ? 'bg-red-600 text-white' : 'bg-[#1a1a1a] text-gray-400 hover:text-white'}`}
-        >
+        <button onClick={() => setFilter('alle')} className={`px-3 py-1.5 text-xs rounded whitespace-nowrap transition-colors flex-shrink-0 ${filter === 'alle' ? 'bg-red-600 text-white' : 'bg-[#1a1a1a] text-gray-400 hover:text-white'}`}>
           Alle ({songs.length})
         </button>
         {STATUSES.map(s => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 text-xs rounded transition-colors ${filter === s ? 'bg-red-600 text-white' : 'bg-[#1a1a1a] text-gray-400 hover:text-white'}`}
-          >
+          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 text-xs rounded whitespace-nowrap transition-colors flex-shrink-0 ${filter === s ? 'bg-red-600 text-white' : 'bg-[#1a1a1a] text-gray-400 hover:text-white'}`}>
             {s} ({songs.filter(x => x.status === s).length})
           </button>
         ))}
@@ -77,23 +132,25 @@ export default function SongsPage() {
         ) : (
           <div className="divide-y divide-[#1a1a1a]">
             {filtered.map(song => (
-              <div key={song.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5">
+              <div
+                key={song.id}
+                className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 cursor-pointer"
+                onClick={() => { setSelected(song); setView('detail') }}
+              >
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-gray-200">{song.title}</div>
                   {song.key && <div className="text-xs text-gray-500">{song.key}{song.bpm ? ` · ${song.bpm} BPM` : ''}</div>}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${STATUS_STYLE[song.status]}`}>
-                    {song.status}
-                  </span>
-                  <div className="flex items-center gap-1.5 w-24">
+                <div className="flex items-center gap-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${STATUS_STYLE[song.status]}`}>{song.status}</span>
+                  <div className="flex items-center gap-1.5 w-20">
                     <div className="flex-1 h-1 bg-[#2a2a2a] rounded-full">
                       <div className="h-1 bg-red-600 rounded-full" style={{ width: `${song.progress}%` }} />
                     </div>
                     <span className="text-xs text-gray-500 w-7 text-right">{song.progress}%</span>
                   </div>
                   <RowActions actions={[
-                    { label: 'Bearbeiten', onClick: () => { setEditing(song); setShowForm(true) } },
+                    { label: 'Bearbeiten', onClick: () => { setSelected(song); setView('edit') } },
                     { label: 'Löschen', onClick: () => deleteSong.mutate(song.id), danger: true },
                   ]} />
                 </div>
@@ -105,16 +162,16 @@ export default function SongsPage() {
 
       {showForm && (
         <SongForm
-          initial={editing}
-          onClose={() => { setShowForm(false); setEditing(null) }}
-          onSaved={() => { qc.invalidateQueries({ queryKey: ['songs'] }); qc.invalidateQueries({ queryKey: ['songs-in-progress'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }) }}
+          initial={null}
+          onClose={() => setShowForm(false)}
+          onSaved={() => { qc.invalidateQueries({ queryKey: ['songs'] }); qc.invalidateQueries({ queryKey: ['songs-in-progress'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }); setShowForm(false) }}
         />
       )}
     </div>
   )
 }
 
-function SongForm({ initial, onClose, onSaved }: { initial: Song | null; onClose: () => void; onSaved: () => void }) {
+function SongForm({ initial, onClose, onSaved, inline }: { initial: Song | null; onClose: () => void; onSaved: () => void; inline?: boolean }) {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [status, setStatus] = useState<string>(initial?.status ?? 'IDEE')
   const [progress, setProgress] = useState(initial?.progress?.toString() ?? '0')
@@ -124,51 +181,32 @@ function SongForm({ initial, onClose, onSaved }: { initial: Song | null; onClose
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const payload = {
-      title, status,
-      progress: parseInt(progress) || 0,
-      bpm: bpm ? parseInt(bpm) : null,
-      key: key || null,
-      notes: notes || null,
-    }
-    if (initial) {
-      await supabase.from('songs').update(payload).eq('id', initial.id)
-    } else {
-      await supabase.from('songs').insert(payload)
-    }
+    const payload = { title, status, progress: parseInt(progress) || 0, bpm: bpm ? parseInt(bpm) : null, key: key || null, notes: notes || null }
+    if (initial) { await supabase.from('songs').update(payload).eq('id', initial.id) }
+    else { await supabase.from('songs').insert(payload) }
     onSaved()
-    onClose()
   }
 
-  return (
-    <Modal title={initial ? 'Song bearbeiten' : 'Neuer Song'} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField label="Titel">
-          <Input value={title} onChange={e => setTitle(e.target.value)} required placeholder="Songtitel..." autoFocus />
+  const form = (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <FormField label="Titel"><Input value={title} onChange={e => setTitle(e.target.value)} required placeholder="Songtitel..." autoFocus /></FormField>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Status">
+          <Select value={status} onChange={e => setStatus(e.target.value)}>
+            {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+          </Select>
         </FormField>
-        <div className="grid grid-cols-2 gap-3">
-          <FormField label="Status">
-            <Select value={status} onChange={e => setStatus(e.target.value)}>
-              {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-            </Select>
-          </FormField>
-          <FormField label="Fortschritt (%)">
-            <Input type="number" min="0" max="100" value={progress} onChange={e => setProgress(e.target.value)} />
-          </FormField>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <FormField label="Tonart">
-            <Input value={key} onChange={e => setKey(e.target.value)} placeholder="z.B. Am, C#" />
-          </FormField>
-          <FormField label="BPM">
-            <Input type="number" value={bpm} onChange={e => setBpm(e.target.value)} placeholder="120" />
-          </FormField>
-        </div>
-        <FormField label="Notizen">
-          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Lyric-Ideen, Struktur..." />
-        </FormField>
-        <SubmitRow onCancel={onClose} label={initial ? 'Speichern' : 'Erstellen'} />
-      </form>
-    </Modal>
+        <FormField label="Fortschritt (%)"><Input type="number" min="0" max="100" value={progress} onChange={e => setProgress(e.target.value)} /></FormField>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Tonart"><Input value={key} onChange={e => setKey(e.target.value)} placeholder="z.B. Am, C#" /></FormField>
+        <FormField label="BPM"><Input type="number" value={bpm} onChange={e => setBpm(e.target.value)} placeholder="120" /></FormField>
+      </div>
+      <FormField label="Notizen"><Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={4} placeholder="Lyric-Ideen, Struktur..." /></FormField>
+      <SubmitRow onCancel={onClose} label={initial ? 'Speichern' : 'Erstellen'} />
+    </form>
   )
+
+  if (inline) return <div className="max-w-lg space-y-4"><h2 className="text-lg font-bold text-white">{initial ? 'Song bearbeiten' : 'Neuer Song'}</h2>{form}</div>
+  return <Modal title={initial ? 'Song bearbeiten' : 'Neuer Song'} onClose={onClose}>{form}</Modal>
 }

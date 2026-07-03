@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { Menu } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import Sidebar from './Sidebar'
 
 export default function AppLayout() {
@@ -32,9 +32,15 @@ export default function AppLayout() {
           <button onClick={() => setSidebarOpen(true)} className="text-gray-400 hover:text-white transition-colors">
             <Menu size={20} />
           </button>
-          <span className="text-sm font-bold text-white">
+          <span className="text-sm font-bold text-white flex-1">
             band<span className="text-red-500">p</span>O<span className="text-red-500">rtal</span>
           </span>
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <Search size={18} />
+          </button>
         </div>
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">

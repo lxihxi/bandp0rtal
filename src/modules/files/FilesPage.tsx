@@ -4,7 +4,7 @@ import { Upload, Download, Trash2, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Card } from '@/components/ui/Card'
 
-const FOLDERS = ['EPK', 'Fotos', 'Verträge', 'Rider', 'Sonstiges'] as const
+const FOLDERS = ['EPK', 'Verträge', 'Rider', 'Sonstiges'] as const
 type Folder = typeof FOLDERS[number]
 
 function formatSize(bytes: number) {
