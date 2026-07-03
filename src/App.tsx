@@ -12,6 +12,9 @@ import ProjectsPage from '@/modules/projects/ProjectsPage'
 import CalendarPage from '@/modules/calendar/CalendarPage'
 import TasksPage from '@/modules/tasks/TasksPage'
 import MerchPage from '@/modules/merch/MerchPage'
+import FilesPage from '@/modules/files/FilesPage'
+import WikiPage from '@/modules/wiki/WikiPage'
+import SettingsPage from '@/modules/settings/SettingsPage'
 
 const queryClient = new QueryClient()
 
@@ -62,9 +65,9 @@ export default function App() {
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/merch" element={<MerchPage />} />
-            <Route path="/files" element={<div className="text-gray-400">Dateien & EPK - kommt bald</div>} />
-            <Route path="/wiki" element={<div className="text-gray-400">Notizen / Wiki - kommt bald</div>} />
-            <Route path="/settings" element={<div className="text-gray-400">Einstellungen - kommt bald</div>} />
+            <Route path="/files" element={<FilesPage />} />
+            <Route path="/wiki" element={<WikiPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
