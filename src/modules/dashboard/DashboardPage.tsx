@@ -43,10 +43,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-xs text-gray-600 mt-0.5">bandpOrtal</p>
-      </div>
+      <h1 className="text-2xl font-bold text-white">Dashboard</h1>
 
       {/* Quick add */}
       <div className="flex gap-2 flex-wrap">
