@@ -6,6 +6,12 @@ import { supabase } from '@/lib/supabase'
 import AppLayout from '@/components/layout/AppLayout'
 import LoginPage from '@/modules/auth/LoginPage'
 import DashboardPage from '@/modules/dashboard/DashboardPage'
+import ContactsPage from '@/modules/contacts/ContactsPage'
+import SongsPage from '@/modules/songs/SongsPage'
+import ProjectsPage from '@/modules/projects/ProjectsPage'
+import CalendarPage from '@/modules/calendar/CalendarPage'
+import TasksPage from '@/modules/tasks/TasksPage'
+import MerchPage from '@/modules/merch/MerchPage'
 
 const queryClient = new QueryClient()
 
@@ -50,12 +56,12 @@ export default function App() {
             }
           >
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/contacts" element={<div className="text-gray-400">CRM & Kontakte - kommt bald</div>} />
-            <Route path="/songs" element={<div className="text-gray-400">Songs & Discography - kommt bald</div>} />
-            <Route path="/projects" element={<div className="text-gray-400">Projekte & Ziele - kommt bald</div>} />
-            <Route path="/calendar" element={<div className="text-gray-400">Kalender - kommt bald</div>} />
-            <Route path="/tasks" element={<div className="text-gray-400">Aufgaben - kommt bald</div>} />
-            <Route path="/merch" element={<div className="text-gray-400">Merch & Inventar - kommt bald</div>} />
+            <Route path="/contacts" element={<ContactsPage />} />
+            <Route path="/songs" element={<SongsPage />} />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/merch" element={<MerchPage />} />
             <Route path="/files" element={<div className="text-gray-400">Dateien & EPK - kommt bald</div>} />
             <Route path="/wiki" element={<div className="text-gray-400">Notizen / Wiki - kommt bald</div>} />
             <Route path="/settings" element={<div className="text-gray-400">Einstellungen - kommt bald</div>} />
