@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, SubmitRow } from '@/components/ui/FormField'
 import { Card } from '@/components/ui/Card'
+import { RowActions } from '@/components/ui/RowActions'
 import type { Task } from '@/types'
 
 const PRIORITY_STYLE: Record<string, string> = {
@@ -100,7 +101,7 @@ export default function TasksPage() {
         ) : (
           <div className="divide-y divide-[#1a1a1a]">
             {filtered.map(task => (
-              <div key={task.id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 group">
+              <div key={task.id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/5">
                 <button
                   onClick={() => toggleDone.mutate(task)}
                   className={`flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-colors ${task.done ? 'bg-green-700 border-green-700' : 'border-[#3a3a3a] hover:border-red-500'}`}
@@ -125,18 +126,10 @@ export default function TasksPage() {
                       {formatDate(task.due_date)}
                     </span>
                   )}
-                  <button
-                    onClick={() => { setEditing(task); setShowForm(true) }}
-                    className="text-gray-600 hover:text-gray-300 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-1"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteTask.mutate(task.id)}
-                    className="text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ×
-                  </button>
+                  <RowActions actions={[
+                    { label: 'Bearbeiten', onClick: () => { setEditing(task); setShowForm(true) } },
+                    { label: 'Löschen', onClick: () => deleteTask.mutate(task.id), danger: true },
+                  ]} />
                 </div>
               </div>
             ))}

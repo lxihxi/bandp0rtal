@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { RowActions } from '@/components/ui/RowActions'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
 import { Card } from '@/components/ui/Card'
@@ -71,7 +72,7 @@ export default function ProjectsPage() {
           ) : (
             <div className="divide-y divide-[#1a1a1a]">
               {projects.map(p => (
-                <div key={p.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 group">
+                <div key={p.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5">
                   <div className="flex-1 min-w-0">
                     <div className="text-sm text-gray-200">{p.title}</div>
                     {p.due_date && <div className="text-xs text-gray-500">Fällig: {formatDate(p.due_date)}</div>}
@@ -80,8 +81,10 @@ export default function ProjectsPage() {
                     <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${STATUS_STYLE[p.status]}`}>
                       {p.status.toUpperCase()}
                     </span>
-                    <button onClick={() => { setEditingProject(p); setShowProjectForm(true) }} className="text-gray-600 hover:text-gray-300 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-1">Edit</button>
-                    <button onClick={() => deleteProject.mutate(p.id)} className="text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                    <RowActions actions={[
+                      { label: 'Bearbeiten', onClick: () => { setEditingProject(p); setShowProjectForm(true) } },
+                      { label: 'Löschen', onClick: () => deleteProject.mutate(p.id), danger: true },
+                    ]} />
                   </div>
                 </div>
               ))}
@@ -109,14 +112,16 @@ export default function ProjectsPage() {
               {goals.map(g => {
                 const pct = Math.min(100, Math.round((g.current_value / g.target_value) * 100))
                 return (
-                  <div key={g.id} className="px-4 py-3 hover:bg-white/5 group">
+                  <div key={g.id} className="px-4 py-3 hover:bg-white/5">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-gray-200">{g.title}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-400">{g.current_value} / {g.target_value}{g.unit ? ` ${g.unit}` : ''}</span>
                         <span className="text-xs text-gray-500">{pct}%</span>
-                        <button onClick={() => { setEditingGoal(g); setShowGoalForm(true) }} className="text-gray-600 hover:text-gray-300 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-1">Edit</button>
-                        <button onClick={() => deleteGoal.mutate(g.id)} className="text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                        <RowActions actions={[
+                          { label: 'Bearbeiten', onClick: () => { setEditingGoal(g); setShowGoalForm(true) } },
+                          { label: 'Löschen', onClick: () => deleteGoal.mutate(g.id), danger: true },
+                        ]} />
                       </div>
                     </div>
                     <div className="w-full h-1.5 bg-[#2a2a2a] rounded-full">

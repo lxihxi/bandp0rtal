@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
 import { Card } from '@/components/ui/Card'
+import { RowActions } from '@/components/ui/RowActions'
 import type { Event } from '@/types'
 
 const TYPE_STYLE: Record<string, string> = {
@@ -91,7 +92,7 @@ export default function CalendarPage() {
         ) : (
           <div className="divide-y divide-[#1a1a1a]">
             {filtered.map(event => (
-              <div key={event.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 group">
+              <div key={event.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5">
                 <div className="flex-shrink-0 text-center w-14">
                   <div className="text-xs text-gray-500">{formatDate(event.date).split(', ')[0]}</div>
                   <div className="text-sm font-medium text-white">{formatDate(event.date).split(', ')[1]?.split('.').slice(0,2).join('.')}</div>
@@ -108,18 +109,10 @@ export default function CalendarPage() {
                   {event.fee != null && (
                     <span className="text-xs text-gray-500">{event.fee}€</span>
                   )}
-                  <button
-                    onClick={() => { setEditing(event); setShowForm(true) }}
-                    className="text-gray-600 hover:text-gray-300 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-1"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteEvent.mutate(event.id)}
-                    className="text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ×
-                  </button>
+                  <RowActions actions={[
+                    { label: 'Bearbeiten', onClick: () => { setEditing(event); setShowForm(true) } },
+                    { label: 'Löschen', onClick: () => deleteEvent.mutate(event.id), danger: true },
+                  ]} />
                 </div>
               </div>
             ))}

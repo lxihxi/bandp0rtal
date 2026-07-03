@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
 import { Card } from '@/components/ui/Card'
+import { RowActions } from '@/components/ui/RowActions'
 import type { Song } from '@/types'
 
 const STATUSES = ['IDEE', 'SCHREIBEN', 'ARRANGEMENT', 'DEMO', 'FERTIG', 'VERÖFFENTLICHT'] as const
@@ -76,7 +77,7 @@ export default function SongsPage() {
         ) : (
           <div className="divide-y divide-[#1a1a1a]">
             {filtered.map(song => (
-              <div key={song.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 group">
+              <div key={song.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5">
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-gray-200">{song.title}</div>
                   {song.key && <div className="text-xs text-gray-500">{song.key}{song.bpm ? ` · ${song.bpm} BPM` : ''}</div>}
@@ -91,18 +92,10 @@ export default function SongsPage() {
                     </div>
                     <span className="text-xs text-gray-500 w-7 text-right">{song.progress}%</span>
                   </div>
-                  <button
-                    onClick={() => { setEditing(song); setShowForm(true) }}
-                    className="text-gray-600 hover:text-gray-300 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-1"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteSong.mutate(song.id)}
-                    className="text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ×
-                  </button>
+                  <RowActions actions={[
+                    { label: 'Bearbeiten', onClick: () => { setEditing(song); setShowForm(true) } },
+                    { label: 'Löschen', onClick: () => deleteSong.mutate(song.id), danger: true },
+                  ]} />
                 </div>
               </div>
             ))}

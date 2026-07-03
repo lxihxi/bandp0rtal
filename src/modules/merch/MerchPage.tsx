@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, SubmitRow } from '@/components/ui/FormField'
 import { Card } from '@/components/ui/Card'
+import { RowActions } from '@/components/ui/RowActions'
 import type { MerchItem } from '@/types'
 
 export default function MerchPage() {
@@ -67,7 +68,7 @@ export default function MerchPage() {
             {items.map(item => {
               const isLow = item.stock <= item.reorder_threshold
               return (
-                <div key={item.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 group">
+                <div key={item.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5">
                   <div className="flex-1 min-w-0">
                     <div className="text-sm text-gray-200">{item.name}</div>
                     {item.variant && <div className="text-xs text-gray-500">{item.variant}</div>}
@@ -92,8 +93,10 @@ export default function MerchPage() {
                     {isLow && (
                       <span className="text-[10px] bg-red-950 text-red-400 px-2 py-0.5 rounded">{item.stock <= 0 ? 'LEER' : 'NIEDRIG'}</span>
                     )}
-                    <button onClick={() => { setEditing(item); setShowForm(true) }} className="text-gray-600 hover:text-gray-300 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-1">Edit</button>
-                    <button onClick={() => deleteItem.mutate(item.id)} className="text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                    <RowActions actions={[
+                      { label: 'Bearbeiten', onClick: () => { setEditing(item); setShowForm(true) } },
+                      { label: 'Löschen', onClick: () => deleteItem.mutate(item.id), danger: true },
+                    ]} />
                   </div>
                 </div>
               )

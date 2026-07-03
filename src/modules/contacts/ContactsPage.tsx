@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Modal } from '@/components/ui/Modal'
 import { FormField, Input, Select, Textarea, SubmitRow } from '@/components/ui/FormField'
 import { Card } from '@/components/ui/Card'
+import { RowActions } from '@/components/ui/RowActions'
 import type { Contact } from '@/types'
 
 const TYPE_STYLE: Record<string, string> = {
@@ -82,7 +83,7 @@ export default function ContactsPage() {
         ) : (
           <div className="divide-y divide-[#1a1a1a]">
             {filtered.map(contact => (
-              <div key={contact.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 group">
+              <div key={contact.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/5">
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-gray-200">{contact.name}</div>
                   <div className="flex gap-3 mt-0.5">
@@ -94,18 +95,10 @@ export default function ContactsPage() {
                   <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${TYPE_STYLE[contact.type]}`}>
                     {TYPE_LABEL[contact.type]}
                   </span>
-                  <button
-                    onClick={() => { setEditing(contact); setShowForm(true) }}
-                    className="text-gray-600 hover:text-gray-300 text-xs opacity-0 group-hover:opacity-100 transition-opacity px-1"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteContact.mutate(contact.id)}
-                    className="text-gray-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ×
-                  </button>
+                  <RowActions actions={[
+                    { label: 'Bearbeiten', onClick: () => { setEditing(contact); setShowForm(true) } },
+                    { label: 'Löschen', onClick: () => deleteContact.mutate(contact.id), danger: true },
+                  ]} />
                 </div>
               </div>
             ))}
