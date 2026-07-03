@@ -82,7 +82,9 @@ export interface Goal {
 export interface MerchItem {
   id: string
   name: string
-  variant?: string
+  size?: string
+  gender?: string
+  color?: string
   stock: number
   reorder_threshold: number
   price?: number
