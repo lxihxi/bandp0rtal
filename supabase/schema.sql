@@ -2,7 +2,7 @@
 create table songs (
   id uuid primary key default gen_random_uuid(),
   title text not null,
-  status text not null default 'IDEE' check (status in ('IDEE','SCHREIBEN','ARRANGEMENT','DEMO','FERTIG','VERÖFFENTLICHT')),
+  status text not null default 'IDEE' check (status in ('IDEE','SCHREIBEN','RECORDING','DEMO','FERTIG','VERÖFFENTLICHT')),
   progress int not null default 0,
   album_id uuid,
   bpm int,

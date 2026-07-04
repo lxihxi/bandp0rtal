@@ -19,7 +19,7 @@ const TYPE_LABEL: Record<string, string> = { album: 'Album', ep: 'EP', single: '
 
 const STATUS_STYLE: Record<string, string> = {
   IDEE: 'bg-gray-800 text-gray-400', SCHREIBEN: 'bg-blue-950 text-blue-300',
-  ARRANGEMENT: 'bg-purple-950 text-purple-300', DEMO: 'bg-yellow-950 text-yellow-300',
+  RECORDING: 'bg-purple-950 text-purple-300', DEMO: 'bg-yellow-950 text-yellow-300',
   FERTIG: 'bg-green-950 text-green-300', VERÖFFENTLICHT: 'bg-red-950 text-red-300',
 }
 

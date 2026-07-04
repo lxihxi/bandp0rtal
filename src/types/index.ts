@@ -20,7 +20,7 @@ export interface Contact {
 export interface Song {
   id: string
   title: string
-  status: 'IDEE' | 'SCHREIBEN' | 'ARRANGEMENT' | 'DEMO' | 'FERTIG' | 'VERÖFFENTLICHT'
+  status: 'IDEE' | 'SCHREIBEN' | 'RECORDING' | 'DEMO' | 'FERTIG' | 'VERÖFFENTLICHT'
   progress: number
   album_id?: string
   bpm?: number

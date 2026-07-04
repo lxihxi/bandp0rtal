@@ -14,7 +14,7 @@ import { useActivityLog, timeAgo } from '@/modules/activity/ActivityPage'
 const STATUS_COLORS: Record<string, string> = {
   IDEE: 'bg-gray-700 text-gray-300',
   SCHREIBEN: 'bg-blue-900 text-blue-300',
-  ARRANGEMENT: 'bg-purple-900 text-purple-300',
+  RECORDING: 'bg-purple-900 text-purple-300',
   DEMO: 'bg-yellow-900 text-yellow-300',
   FERTIG: 'bg-green-900 text-green-300',
   VERÖFFENTLICHT: 'bg-red-900 text-red-300',
