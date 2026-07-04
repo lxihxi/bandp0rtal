@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Menu, Search } from 'lucide-react'
 import Sidebar from './Sidebar'
+import { useInactivityLogout } from '@/hooks/useInactivityLogout'
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { warningVisible, secondsLeft, stayActive } = useInactivityLogout()
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#0a0a0a]">
@@ -47,6 +49,24 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </div>
+
+      {warningVisible && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70">
+          <div className="bg-[#111] border border-[#2a2a2a] rounded-lg p-6 max-w-sm w-full mx-4 text-center space-y-4">
+            <div className="text-4xl font-bold text-red-500">{secondsLeft}</div>
+            <p className="text-white font-medium">Automatische Abmeldung</p>
+            <p className="text-sm text-gray-400">
+              Du wirst in {secondsLeft} Sekunde{secondsLeft !== 1 ? 'n' : ''} wegen Inaktivität abgemeldet.
+            </p>
+            <button
+              onClick={stayActive}
+              className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors"
+            >
+              Aktiv bleiben
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
